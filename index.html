@@ -120,12 +120,12 @@
   <h1>更衣人偶</h1>
   
   <p class="issues-notice">
-    想要提交的衣服可以提交在
+    想要提交的衣服可以提交在的
     <a href="https://github.com/hayde0096/Kisegaeningyou/issues" 
        class="issues-link"
        target="_blank"
        rel="noopener noreferrer">
-      Issues里
+      Issues中
     </a>
   </p>
 
@@ -201,29 +201,36 @@
 
     // 加载画廊数据
     async function loadGallery() {
-      try {
-        const filesRes = await fetch(
-          `https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}/contents/${CONFIG.IMAGE_FOLDER}`
-        );
-        const allFiles = await filesRes.json();
-
-        const imageFiles = allFiles.filter(file => 
-          file.name.match(/\.(jpg|jpeg|png|gif)$/i) && 
-          !file.name.endsWith('.desc.txt')
-        );
-
-        const grid = document.getElementById('image-grid');
-        imageFiles.forEach(file => {
-          const descFile = allFiles.find(f => f.name === `${file.name}.desc.txt`);
-          const description = descFile ? atob(descFile.content) : '暂无说明';
-          grid.appendChild(createImageCard(file.download_url, description));
-        });
-
-      } catch (error) {
-        console.error('加载失败:', error);
-        grid.innerHTML = `<p style="text-align:center;color:#dc3545;">数据加载失败，请刷新重试</p>`;
-      }
+  try {
+    console.log('Fetching images...');
+    const filesRes = await fetch(
+      `https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}/contents/${CONFIG.IMAGE_FOLDER}`
+    );
+    if (!filesRes.ok) {
+      throw new Error(`HTTP error! status: ${filesRes.status}`);
     }
+    const allFiles = await filesRes.json();
+    console.log('Fetched files:', allFiles);
+
+    const imageFiles = allFiles.filter(file => 
+      file.name.match(/\.(jpg|jpeg|png|gif)$/i) && 
+      !file.name.endsWith('.desc.txt')
+    );
+    console.log('Filtered image files:', imageFiles);
+
+    const grid = document.getElementById('image-grid');
+    imageFiles.forEach(file => {
+      const descFile = allFiles.find(f => f.name === `${file.name}.desc.txt`);
+      const description = descFile ? atob(descFile.content) : '暂无说明';
+      grid.appendChild(createImageCard(file.download_url, description));
+    });
+
+  } catch (error) {
+    console.error('加载失败:', error);
+    const grid = document.getElementById('image-grid');
+    grid.innerHTML = `<p style="text-align:center;color:#dc3545;">数据加载失败，请刷新重试</p>`;
+  }
+}
 
     // 窗口尺寸变化处理
     let resizeTimer;
