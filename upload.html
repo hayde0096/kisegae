@@ -264,8 +264,8 @@
         return;
       }
 
-      // 按名称排序文件
-      const sortedFiles = Array.from(files).sort((a, b) => a.name.localeCompare(b.name));
+      // 按拖放顺序处理文件
+      const sortedFiles = Array.from(files);
 
       sortedFiles.forEach(file => {
         if (!file.type.startsWith('image/')) {
