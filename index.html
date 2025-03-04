@@ -3,84 +3,132 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>图片画廊</title>
+  <title>更衣人偶</title>
   <style>
+    /* 基础样式 */
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f5f5f7;
+      background: #f8f9fa;
       padding: 20px;
     }
 
     h1 {
-      color: #1a1a1a;
-      margin: 20px 0;
       text-align: center;
+      margin: 20px 0 20px;
+      color: #2c3e50;
+      font-size: 2em;
     }
 
+    /* Issues提交提示 */
+    .issues-notice {
+      text-align: center;
+      margin: 20px 0 40px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .issues-link {
+      color: #2ea44f;
+      text-decoration: none;
+      border-bottom: 1px dotted #2ea44f;
+      transition: all 0.2s;
+    }
+
+    .issues-link:hover {
+      color: #22863a;
+      border-bottom-style: solid;
+    }
+
+    /* 网格容器 */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 25px;
-      max-width: 1200px;
-      margin: 20px auto;
-      padding: 20px;
+      gap: 30px;
+      max-width: 1400px;
+      margin: 0 auto;
     }
 
+    /* 卡片容器 */
     .image-item {
       background: white;
       border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      min-height: 400px;
     }
 
-    .image-item:hover {
-      transform: translateY(-3px);
-    }
-
-    .image-item img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
+    /* 图片区域 */
+    .image-container {
+      flex: 1;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       border-bottom: 1px solid #eee;
     }
 
-    .image-description {
+    .image-container img {
+      max-width: 100%;
+      max-height: 300px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+
+    /* 说明区域 */
+    .description-box {
+      height: 100px;
       padding: 15px;
-      color: #333;
-      font-size: 14px;
-      line-height: 1.5;
-      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    a {
-      text-decoration: none;
-      color: #2ea44f;
-      padding: 8px 16px;
-      border: 1px solid #2ea44f;
-      border-radius: 8px;
-      transition: all 0.3s;
+    .description-text {
+      width: 100%;
+      margin: 0;
+      line-height: 1.4;
+      color: #555;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      word-break: break-word;
+      overflow: hidden;
     }
 
-    a:hover {
-      background: #2ea44f;
-      color: white;
+    .description-text:active {
+      transform: scale(0.98);
     }
 
     @media (max-width: 600px) {
       .grid {
         grid-template-columns: 1fr;
-        padding: 10px;
+      }
+      
+      .image-container img {
+        max-height: 250px;
       }
       
       h1 {
-        font-size: 1.5em;
+        font-size: 1.8em;
       }
     }
   </style>
 </head>
 <body>
-  <h1>我的图片画廊 <a href="upload.html">上传新图片</a></h1>
+  <h1>更衣人偶</h1>
+  
+  <p class="issues-notice">
+    想要提交的衣服可以提交在
+    <a href="https://github.com/hayde0096/Kisegaeningyou/issues" 
+       class="issues-link"
+       target="_blank"
+       rel="noopener noreferrer">
+      Issues里
+    </a>
+  </p>
+
   <div id="image-grid" class="grid"></div>
 
   <script>
@@ -91,60 +139,100 @@
       IMAGE_FOLDER: 'images'
     };
 
-    // 加载图片数据
-    async function loadGallery() {
-      try {
-        // 获取文件列表
-        const filesRes = await fetch(
-          `https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}/contents/${CONFIG.IMAGE_FOLDER}`
-        );
-        const files = await filesRes.json();
-
-        // 并行获取每个文件的提交信息
-        const imageCards = await Promise.all(
-          files.filter(file => file.name.match(/\.(jpg|jpeg|png|gif)$/i))
-               .map(async file => {
-            try {
-              // 获取文件提交历史
-              const commitRes = await fetch(file.git_url);
-              const commitData = await commitRes.json();
-              
-              // 从提交消息中提取描述
-              const description = commitData.message
-                .replace(/^添加图片: /, '')
-                .replace(/\n.*/s, '') // 移除换行后的内容
-                .substring(0, 100);   // 限制最大长度
-
-              return createImageCard(file.download_url, description);
-            } catch (error) {
-              console.warn(`无法获取 ${file.name} 的说明:`, error);
-              return createImageCard(file.download_url, '暂无说明');
-            }
-          })
-        );
-
-        // 添加到页面
-        const grid = document.getElementById('image-grid');
-        imageCards.forEach(card => grid.appendChild(card));
-        
-      } catch (error) {
-        console.error('画廊加载失败:', error);
-        grid.innerHTML = `<p style="text-align:center;color:#dc3545;">加载失败，请刷新重试</p>`;
+    // 文字缩放函数
+    function autoShrinkText(element) {
+      const container = element.parentElement;
+      let fontSize = 16;
+      element.style.fontSize = fontSize + 'px';
+      
+      while (element.scrollHeight > container.offsetHeight && fontSize > 5) {
+        fontSize -= 0.5;
+        element.style.fontSize = fontSize + 'px';
       }
     }
 
     // 创建图片卡片
-    function createImageCard(imageUrl, description) {
+    function createImageCard(imgUrl, description) {
       const card = document.createElement('div');
       card.className = 'image-item';
-      card.innerHTML = `
-        <img src="${imageUrl}" loading="lazy" alt="画廊图片">
-        <div class="image-description">
-          ${description || '暂无文字说明'}
-        </div>
-      `;
+      
+      // 图片容器
+      const imgContainer = document.createElement('div');
+      imgContainer.className = 'image-container';
+      
+      const img = new Image();
+      img.src = imgUrl;
+      img.onload = () => {
+        img.style.opacity = 1;
+        requestAnimationFrame(() => autoShrinkText(descText));
+      };
+      img.style.opacity = 0;
+      img.style.transition = 'opacity 0.3s';
+      
+      // 说明容器
+      const descBox = document.createElement('div');
+      descBox.className = 'description-box';
+      
+      const descText = document.createElement('div');
+      descText.className = 'description-text';
+      descText.textContent = description || '暂无说明';
+      
+      // 点击复制功能
+      descText.addEventListener('click', () => {
+        navigator.clipboard.writeText(description)
+          .then(() => {
+            const originalText = descText.textContent;
+            descText.textContent = '已复制 ✓';
+            setTimeout(() => {
+              descText.textContent = originalText;
+              autoShrinkText(descText);
+            }, 1000);
+          });
+      });
+
+      // 组合元素
+      imgContainer.appendChild(img);
+      descBox.appendChild(descText);
+      card.appendChild(imgContainer);
+      card.appendChild(descBox);
+
       return card;
     }
+
+    // 加载画廊数据
+    async function loadGallery() {
+      try {
+        const filesRes = await fetch(
+          `https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}/contents/${CONFIG.IMAGE_FOLDER}`
+        );
+        const allFiles = await filesRes.json();
+
+        const imageFiles = allFiles.filter(file => 
+          file.name.match(/\.(jpg|jpeg|png|gif)$/i) && 
+          !file.name.endsWith('.desc.txt')
+        );
+
+        const grid = document.getElementById('image-grid');
+        imageFiles.forEach(file => {
+          const descFile = allFiles.find(f => f.name === `${file.name}.desc.txt`);
+          const description = descFile ? atob(descFile.content) : '暂无说明';
+          grid.appendChild(createImageCard(file.download_url, description));
+        });
+
+      } catch (error) {
+        console.error('加载失败:', error);
+        grid.innerHTML = `<p style="text-align:center;color:#dc3545;">数据加载失败，请刷新重试</p>`;
+      }
+    }
+
+    // 窗口尺寸变化处理
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        document.querySelectorAll('.description-text').forEach(autoShrinkText);
+      }, 200);
+    });
 
     // 初始化加载
     window.addEventListener('DOMContentLoaded', loadGallery);
