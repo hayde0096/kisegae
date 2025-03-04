@@ -69,6 +69,7 @@
       border-radius: 12px;
       box-shadow: 0 3px 15px rgba(0,0,0,0.1);
       overflow: hidden;
+      position: relative;
     }
 
     .image-preview {
@@ -136,6 +137,24 @@
       max-width: 60%;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    .cancel-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
     }
 
     @media (max-width: 768px) {
@@ -264,6 +283,7 @@
             <span class="file-name">${file.name}</span>
             <button class="upload-btn" onclick="uploadFile(this)" disabled>开始上传</button>
           </div>
+          <button class="cancel-btn" onclick="cancelUpload(this)">×</button>
         `;
 
         // 自动调整文本框
@@ -290,6 +310,12 @@
         const newSize = parseInt(textarea.style.fontSize) - 0.5;
         textarea.style.fontSize = newSize + 'px';
       }
+    }
+
+    // 取消上传
+    function cancelUpload(button) {
+      const card = button.closest('.preview-card');
+      card.remove();
     }
 
     // 上传文件
