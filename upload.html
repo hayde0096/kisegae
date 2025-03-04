@@ -95,6 +95,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      position: relative; /* 添加相对定位 */
     }
 
     .image-preview {
@@ -181,7 +182,13 @@
         padding-top: 100%; /* 高度为宽度的1倍 */
       }
     }
+
+    /* 拖放时的占位样式 */
+    .sortable-ghost {
+      opacity: 0.4;
+    }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
 </head>
 <body>
   <div class="top-controls">
@@ -430,6 +437,18 @@
       document.body.appendChild(toast);
       setTimeout(() => toast.remove(), 3000);
     }
+
+    // 初始化 SortableJS
+    document.addEventListener('DOMContentLoaded', () => {
+      const previewGrid = document.getElementById('preview-grid');
+      Sortable.create(previewGrid, {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        onEnd: function (/**Event*/evt) {
+          showToast('图片排序已更新', 'success');
+        }
+      });
+    });
   </script>
 </body>
 </html>
