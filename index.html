@@ -112,6 +112,14 @@
       left: 20px;
     }
 
+    .folder-select {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 5px;
+      font-size: 14px;
+    }
+
   </style>
 </head>
 <body>
@@ -128,6 +136,8 @@
     </a>
   </p>
 
+  <select id="folder-select" class="folder-select"></select>
+
   <div id="image-grid" class="grid"></div>
 
   <script>
@@ -137,6 +147,8 @@
       REPO_NAME: 'Kisegaeningyou',
       IMAGE_FOLDER: 'images'
     };
+
+    let githubToken = ''; // 需要设置GitHub访问令牌
 
     // 增强版Base64解码函数
     function decodeBase64Content(base64Str) {
@@ -274,8 +286,51 @@
       }
     }
 
-    // 初始化加载
-    window.addEventListener('DOMContentLoaded', loadGallery);
+    // 获取文件夹列表并填充下拉菜单
+    async function fetchFolders() {
+      if (!githubToken) {
+        alert('请先保存GitHub访问令牌');
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}/git/trees/main?recursive=true`,
+          {
+            headers: {
+              'Authorization': `token ${githubToken}`
+            }
+          }
+        );
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message);
+        }
+
+        const data = await response.json();
+        const folders = data.tree.filter(item => item.type === 'tree');
+        const folderSelect = document.getElementById('folder-select');
+        folderSelect.innerHTML = folders.map(folder => `<option value="${folder.path}">${folder.path}</option>`).join('');
+        updateImageFolder();
+
+      } catch (error) {
+        console.error('获取文件夹列表失败:', error);
+        alert(`获取文件夹列表失败: ${error.message}`);
+      }
+    }
+
+    // 更新图片文件夹
+    function updateImageFolder() {
+      const folderSelect = document.getElementById('folder-select');
+      CONFIG.IMAGE_FOLDER = folderSelect.value;
+      loadGallery();
+    }
+
+    // 页面加载时获取文件夹列表
+    document.addEventListener('DOMContentLoaded', fetchFolders);
+    document.getElementById('folder-select').addEventListener('change', updateImageFolder);
+
   </script>
 </body>
 </html>
