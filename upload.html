@@ -37,7 +37,7 @@
     }
 
     .upload-btn {
-      padding: 8px 20px;
+      padding: 8px 8px;
       background: #2ea44f;
       color: white;
       border: none;
@@ -80,11 +80,11 @@
     /* 预览网格 */
     .grid {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 30px;
-      max-width: calc(100% - 200px); /* 减去左右两侧各100像素的空白 */
-      margin: 0px auto;
-      padding: 0 100px; /* 左右各100像素的空白 */
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 20px;
+      margin: 0 auto;
+      padding: 0 50px;
+      justify-content: center; /* 水平居中对齐 */
     }
 
     /* 预览卡片 */
@@ -92,25 +92,26 @@
       background: white;
       border-radius: 12px;
       box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
-      position: relative;
-      width: 100%; /* 保持卡片宽度为网格单元格宽度 */
-      height: 500px; /* 设置固定高度 */
     }
 
     .image-preview {
-      height: 300px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 15px;
-      border-bottom: 1px solid #eee;
+      flex: none; /* 不允许高度自动调整 */
+      width: 100%; /* 宽度为100% */
+      padding-top: 150%; /* 高度为宽度的1.5倍 */
+      position: relative; /* 使子元素绝对定位 */
     }
 
     .image-preview img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
+      position: absolute; /* 绝对定位 */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* 保持图片比例 */
+      border-radius: 12px 12px 0 0; /* 仅上半部分有圆角 */
     }
 
     /* 修改 .description-editor 样式 */
@@ -118,6 +119,9 @@
       padding: 15px;
       height: auto; /* 允许高度自动调整 */
       position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     /* 修改 .description-textarea 样式 */
@@ -174,7 +178,7 @@
       }
       
       .image-preview {
-        height: 250px;
+        padding-top: 100%; /* 高度为宽度的1倍 */
       }
     }
   </style>
@@ -267,29 +271,8 @@
         return;
       }
 
-      // 自然排序算法
-      const naturalSort = (a, b) => {
-        const ax = [], bx = [];
-
-        a.name.replace(/(\d+)|(\D+)/g, (_, $1, $2) => {
-          ax.push([$1 || Infinity, $2 || ""]);
-        });
-        b.name.replace(/(\d+)|(\D+)/g, (_, $1, $2) => {
-          bx.push([$1 || Infinity, $2 || ""]);
-        });
-
-        while (ax.length && bx.length) {
-          const an = ax.shift();
-          const bn = bx.shift();
-          const nn = (an[0] - bn[0]) || an[1].localeCompare(bn[1]);
-          if (nn) return nn;
-        }
-
-        return ax.length - bx.length;
-      };
-
-      // 按文件名自然排序
-      const sortedFiles = Array.from(files).sort(naturalSort);
+      // 按名称排序文件
+      const sortedFiles = Array.from(files).sort((a, b) => a.name.localeCompare(b.name));
 
       sortedFiles.forEach(file => {
         if (!file.type.startsWith('image/')) {
@@ -307,7 +290,6 @@
       reader.onload = e => {
         const card = document.createElement('div');
         card.className = 'preview-card';
-        card.draggable = true; // 使卡片可拖动
         card.innerHTML = `
           <div class="image-preview">
             <img src="${e.target.result}" alt="预览">
@@ -331,51 +313,9 @@
           uploadBtn.disabled = textarea.value.trim() === '';
         });
 
-        // 添加拖动事件处理程序
-        card.addEventListener('dragstart', handleDragStart);
-        card.addEventListener('dragover', handleDragOver);
-        card.addEventListener('drop', handleDropCard);
-        card.addEventListener('dragend', handleDragEnd);
-
         document.getElementById('preview-grid').appendChild(card);
       };
       reader.readAsDataURL(file);
-    }
-
-    let draggedCard = null;
-
-    function handleDragStart(e) {
-      draggedCard = this;
-      e.dataTransfer.effectAllowed = 'move';
-      setTimeout(() => this.classList.add('dragging'), 0);
-    }
-
-    function handleDragOver(e) {
-      if (e.preventDefault) {
-        e.preventDefault();
-      }
-      e.dataTransfer.dropEffect = 'move';
-
-      const target = e.target.closest('.preview-card');
-      if (target && target !== draggedCard) {
-        const grid = document.getElementById('preview-grid');
-        const rect = target.getBoundingClientRect();
-        const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
-        grid.insertBefore(draggedCard, next && target.nextSibling || target);
-      }
-      return false;
-    }
-
-    function handleDropCard(e) {
-      if (e.stopPropagation) {
-        e.stopPropagation();
-      }
-      return false;
-    }
-
-    function handleDragEnd(e) {
-      this.classList.remove('dragging');
-      draggedCard = null;
     }
 
     // 自动调整文字大小
