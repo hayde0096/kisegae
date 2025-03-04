@@ -92,7 +92,8 @@
       word-break: break-word;
       overflow: hidden;
       white-space: normal; /* 允许自动换行 */
-      max-height: 150px; /* 最大高度150像素 */
+      height: 100px; /* 固定高度为150px */
+      overflow-y: auto; /* 添加垂直滚动条 */
     }
 
     .description-text:active {
@@ -111,19 +112,6 @@
       left: 20px;
     }
 
-    @media (max-width: 600px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .image-container img {
-        max-height: 250px;
-      }
-      
-      h1 {
-        font-size: 1.8em;
-      }
-    }
   </style>
 </head>
 <body>
@@ -176,23 +164,6 @@
       }
     }
 
-    // 自动换行
-    function autoShrinkText(element) {
-      const container = element.parentElement;
-      const initialHeight = container.offsetHeight;
-      container.style.height = 'auto'; // 允许高度自动调整
-
-      // 检查是否超出容器高度
-      if (element.scrollHeight > initialHeight) {
-        container.style.height = element.scrollHeight + 'px';
-      }
-
-      // 检查是否超出最大高度
-      if (element.scrollHeight > 150) {
-        element.style.fontSize = '0.9em'; // 缩小字体
-      }
-    }
-
     // 创建图片卡片
     function createImageCard(imgUrl, description) {
       const card = document.createElement('div');
@@ -205,7 +176,6 @@
       img.src = imgUrl;
       img.onload = () => {
         img.style.opacity = 1;
-        requestAnimationFrame(() => autoShrinkText(descText));
       };
       img.style.opacity = 0;
       img.style.transition = 'opacity 0.3s';
@@ -224,7 +194,6 @@
             descText.textContent = '已复制 ✓';
             setTimeout(() => {
               descText.textContent = originalText;
-              autoShrinkText(descText);
             }, 1000);
           });
       });
@@ -237,7 +206,7 @@
       return card;
     }
 
-    // 加载画廊数据（增强版）
+    // 加载画廊数据
     async function loadGallery() {
       try {
         console.log('开始加载画廊数据...');
@@ -304,15 +273,6 @@
         grid.innerHTML = `<p style="text-align:center;color:#dc3545;">数据加载失败，请刷新重试</p>`;
       }
     }
-
-    // 窗口尺寸变化处理
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        document.querySelectorAll('.description-text').forEach(autoShrinkText);
-      }, 200);
-    });
 
     // 初始化加载
     window.addEventListener('DOMContentLoaded', loadGallery);
