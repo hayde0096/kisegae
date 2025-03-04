@@ -70,7 +70,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover; /* 保持图片比例 */
-      border-radius: 12px; /* 匹配展示框的圆角 */
+      border-radius: 12px 12px 0 0; /* 仅上半部分有圆角 */
     }
 
     .description-box {
@@ -92,10 +92,23 @@
       word-break: break-word;
       overflow: hidden;
       white-space: normal; /* 允许自动换行 */
+      max-height: 150px; /* 最大高度150像素 */
     }
 
     .description-text:active {
       transform: scale(0.98);
+    }
+
+    .top-right {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+
+    .top-left {
+      position: absolute;
+      top: 20px;
+      left: 20px;
     }
 
     @media (max-width: 600px) {
@@ -114,9 +127,10 @@
   </style>
 </head>
 <body>
+  <p class="top-left">点击文字可以快速复制</p>
   <h1>更衣人偶</h1>
   
-  <p class="issues-notice">
+  <p class="issues-notice top-right">
     想要提交的衣服可以提交在
     <a href="https://github.com/hayde0096/Kisegaeningyou/issues" 
        class="issues-link"
@@ -171,6 +185,11 @@
       // 检查是否超出容器高度
       if (element.scrollHeight > initialHeight) {
         container.style.height = element.scrollHeight + 'px';
+      }
+
+      // 检查是否超出最大高度
+      if (element.scrollHeight > 150) {
+        element.style.fontSize = '0.9em'; // 缩小字体
       }
     }
 
