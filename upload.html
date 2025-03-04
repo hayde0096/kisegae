@@ -86,15 +86,17 @@
       object-fit: contain;
     }
 
+    /* 修改 .description-editor 样式 */
     .description-editor {
       padding: 15px;
-      height: 120px;
+      height: auto; /* 允许高度自动调整 */
       position: relative;
     }
 
+    /* 修改 .description-textarea 样式 */
     .description-textarea {
       width: 100%;
-      height: 100%;
+      height: auto; /* 允许高度自动调整 */
       padding: 10px;
       border: 1px solid #ddd;
       border-radius: 6px;
@@ -102,6 +104,7 @@
       font-family: inherit;
       font-size: 14px;
       line-height: 1.4;
+      box-sizing: border-box; /* 确保内边距和边框包含在高度和宽度内 */
     }
 
     .upload-control {
@@ -229,7 +232,10 @@
         return;
       }
 
-      Array.from(files).forEach(file => {
+      // 按名称排序文件
+      const sortedFiles = Array.from(files).sort((a, b) => a.name.localeCompare(b.name));
+
+      sortedFiles.forEach(file => {
         if (!file.type.startsWith('image/')) {
           showToast(`跳过非图片文件: ${file.name}`, 'warning');
           return;
@@ -256,13 +262,18 @@
           </div>
           <div class="upload-control">
             <span class="file-name">${file.name}</span>
-            <button class="upload-btn" onclick="uploadFile(this)">开始上传</button>
+            <button class="upload-btn" onclick="uploadFile(this)" disabled>开始上传</button>
           </div>
         `;
 
         // 自动调整文本框
         const textarea = card.querySelector('textarea');
         textarea.addEventListener('input', autoResizeText);
+        textarea.addEventListener('input', () => {
+          const uploadBtn = card.querySelector('.upload-btn');
+          uploadBtn.disabled = textarea.value.trim() === '';
+        });
+
         document.getElementById('preview-grid').prepend(card);
       };
       reader.readAsDataURL(file);
