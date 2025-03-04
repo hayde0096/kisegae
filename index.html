@@ -227,7 +227,7 @@
         const grid = document.getElementById('image-grid');
         imageFiles.forEach(file => {
           const descFile = allFiles.find(f => f.name === `${file.name}.desc.txt`);
-          const description = descFile ? 
+          const description = descFile && descFile.content ? 
             decodeBase64Content(descFile.content) : 
             '暂无说明';
           grid.appendChild(createImageCard(file.download_url, description));
