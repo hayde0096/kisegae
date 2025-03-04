@@ -196,6 +196,9 @@
     <div class="left-controls">
       <h1>上传新图片</h1>
       <a href="index.html">返回画廊</a>
+      <select id="folder-select" onchange="updateImageFolder()">
+        <!-- 文件夹选项将在页面加载时动态填充 -->
+      </select>
     </div>
     <div class="right-controls">
       <input type="password" id="github-token" placeholder="请输入GitHub访问令牌">
@@ -229,6 +232,49 @@
       localStorage.setItem('githubToken', githubToken);
       showToast('令牌已保存', 'success');
     }
+
+    // 更新图片文件夹
+    function updateImageFolder() {
+      const folderSelect = document.getElementById('folder-select');
+      CONFIG.IMAGE_FOLDER = folderSelect.value;
+    }
+
+    // 获取文件夹列表并填充下拉菜单
+    async function fetchFolders() {
+      if (!githubToken) {
+        showToast('请先保存GitHub访问令牌', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}/contents/`,
+          {
+            headers: {
+              'Authorization': `token ${githubToken}`
+            }
+          }
+        );
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message);
+        }
+
+        const data = await response.json();
+        const folders = data.filter(item => item.type === 'dir');
+        const folderSelect = document.getElementById('folder-select');
+        folderSelect.innerHTML = folders.map(folder => `<option value="${folder.path}">${folder.name}</option>`).join('');
+        updateImageFolder();
+
+      } catch (error) {
+        console.error('获取文件夹列表失败:', error);
+        showToast(`获取文件夹列表失败: ${error.message}`, 'error');
+      }
+    }
+
+    // 页面加载时获取文件夹列表
+    document.addEventListener('DOMContentLoaded', fetchFolders);
 
     // 拖拽处理
     const dropZone = document.getElementById('drop-zone');
