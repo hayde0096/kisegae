@@ -203,12 +203,7 @@
     async function loadGallery() {
     try {
         const filesRes = await fetch(
-        `https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}/contents/${CONFIG.IMAGE_FOLDER}?ref=main`,
-        {
-            headers: {
-            'Authorization': 'token YOUR_ACCESS_TOKEN' // 可选，私有仓库需要
-            }
-        }
+        `https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}/contents/${CONFIG.IMAGE_FOLDER}`,
         );
         
         const allFiles = await filesRes.json();
