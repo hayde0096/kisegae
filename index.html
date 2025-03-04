@@ -57,20 +57,20 @@
     }
 
     .image-container {
-      flex: 1;
-      padding: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-bottom: 1px solid #eee;
+      flex: none; /* 不允许高度自动调整 */
+      width: 100%; /* 宽度为100% */
+      padding-top: 66.67%; /* 高度为宽度的2/3 */
+      position: relative; /* 使子元素绝对定位 */
     }
 
     .image-container img {
-      max-width: 100%;
-      max-height: 300px;
-      width: auto;
-      height: auto;
-      object-fit: contain;
+      position: absolute; /* 绝对定位 */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* 保持图片比例 */
+      border-radius: 12px; /* 匹配展示框的圆角 */
     }
 
     .description-box {
