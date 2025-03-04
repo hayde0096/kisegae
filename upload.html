@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>上传图片</title>
+  <style>
+    /* 保持上传页面的特有样式 */
+    #drop-zone { /* ... */ }
+    .config-box { margin: 20px; }
+  </style>
+</head>
+<body>
+  <h1>上传新图片 <a href="index.html" style="font-size:0.8em;">返回画廊</a></h1>
+  
+  <div class="config-box">
+    <input type="password" id="github-token" placeholder="GitHub访问令牌">
+    <button onclick="saveToken()">保存</button>
+  </div>
+
+  <div id="drop-zone">拖拽图片到此上传</div>
+  <div id="preview-grid" class="grid"></div>
+
+  <script>
+    // 沿用之前的上传逻辑
+    const REPO_OWNER = 'YOUR_USERNAME';
+    const REPO_NAME = 'YOUR_REPO';
+    const IMAGE_FOLDER = 'images';
+
+    // ...保留之前的token处理和上传函数...
+
+    // 修改createImageCard为仅预览不上传
+    function createPreviewCard(imgData, filename) {
+      const card = document.createElement('div');
+      card.className = 'image-item';
+      card.innerHTML = `
+        <img src="${imgData}">
+        <textarea placeholder="图片说明"></textarea>
+        <button onclick="uploadThis(this)">确认上传</button>
+      `;
+      document.getElementById('preview-grid').appendChild(card);
+    }
+
+    async function uploadThis(button) {
+      const card = button.parentElement;
+      const description = card.querySelector('textarea').value;
+      // ...触发实际上传逻辑...
+    }
+  </script>
+</body>
+</html>
