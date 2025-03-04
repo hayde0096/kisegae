@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>更衣人偶</title>
   <style>
-    /* 基础样式 */
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #f8f9fa;
@@ -19,7 +18,6 @@
       font-size: 2em;
     }
 
-    /* Issues提交提示 */
     .issues-notice {
       text-align: center;
       margin: 20px 0 40px;
@@ -39,7 +37,6 @@
       border-bottom-style: solid;
     }
 
-    /* 网格容器 */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -48,7 +45,6 @@
       margin: 0 auto;
     }
 
-    /* 卡片容器 */
     .image-item {
       background: white;
       border-radius: 12px;
@@ -58,7 +54,6 @@
       min-height: 400px;
     }
 
-    /* 图片区域 */
     .image-container {
       flex: 1;
       padding: 15px;
@@ -76,7 +71,6 @@
       object-fit: contain;
     }
 
-    /* 说明区域 */
     .description-box {
       height: 100px;
       padding: 15px;
@@ -120,7 +114,7 @@
   <h1>更衣人偶</h1>
   
   <p class="issues-notice">
-    想要提交的衣服可以提交在的
+    想要提交的衣服可以提交在
     <a href="https://github.com/hayde0096/Kisegaeningyou/issues" 
        class="issues-link"
        target="_blank"
@@ -139,6 +133,24 @@
       IMAGE_FOLDER: 'images'
     };
 
+    // 增强版Base64解码函数
+    function decodeBase64Content(base64Str) {
+      try {
+        let safeBase64 = base64Str
+          .replace(/-/g, '+')
+          .replace(/_/g, '/');
+
+        const padLength = (4 - (safeBase64.length % 4)) % 4;
+        safeBase64 += '='.repeat(padLength);
+
+        const decoded = atob(safeBase64);
+        return decodeURIComponent(escape(decoded));
+      } catch (error) {
+        console.error('解码失败:', error);
+        return '说明加载失败';
+      }
+    }
+
     // 文字缩放函数
     function autoShrinkText(element) {
       const container = element.parentElement;
@@ -156,7 +168,6 @@
       const card = document.createElement('div');
       card.className = 'image-item';
       
-      // 图片容器
       const imgContainer = document.createElement('div');
       imgContainer.className = 'image-container';
       
@@ -169,7 +180,6 @@
       img.style.opacity = 0;
       img.style.transition = 'opacity 0.3s';
       
-      // 说明容器
       const descBox = document.createElement('div');
       descBox.className = 'description-box';
       
@@ -177,7 +187,6 @@
       descText.className = 'description-text';
       descText.textContent = description || '暂无说明';
       
-      // 点击复制功能
       descText.addEventListener('click', () => {
         navigator.clipboard.writeText(description)
           .then(() => {
@@ -190,7 +199,6 @@
           });
       });
 
-      // 组合元素
       imgContainer.appendChild(img);
       descBox.appendChild(descText);
       card.appendChild(imgContainer);
@@ -199,32 +207,37 @@
       return card;
     }
 
-    // 修改后的 loadGallery 函数
+    // 加载画廊数据
     async function loadGallery() {
-    try {
+      try {
         const filesRes = await fetch(
-        `https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}/contents/${CONFIG.IMAGE_FOLDER}`,
+          `https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}/contents/${CONFIG.IMAGE_FOLDER}`
         );
         
+        if (!filesRes.ok) {
+          throw new Error(`HTTP错误! 状态码: ${filesRes.status}`);
+        }
+
         const allFiles = await filesRes.json();
         const imageFiles = allFiles.filter(file => 
-        file.name.match(/\.(jpg|jpeg|png|gif)$/i) && 
-        !file.name.endsWith('.desc.txt')
+          file.name.match(/\.(jpg|jpeg|png|gif)$/i) && 
+          !file.name.endsWith('.desc.txt')
         );
 
         const grid = document.getElementById('image-grid');
         imageFiles.forEach(file => {
-        const descFile = allFiles.find(f => f.name === `${file.name}.desc.txt`);
-        const description = descFile ? 
-            decodeURIComponent(escape(atob(descFile.content))) : 
+          const descFile = allFiles.find(f => f.name === `${file.name}.desc.txt`);
+          const description = descFile ? 
+            decodeBase64Content(descFile.content) : 
             '暂无说明';
-        grid.appendChild(createImageCard(file.download_url, description));
+          grid.appendChild(createImageCard(file.download_url, description));
         });
 
-    } catch (error) {
+      } catch (error) {
         console.error('加载失败:', error);
+        const grid = document.getElementById('image-grid');
         grid.innerHTML = `<p style="text-align:center;color:#dc3545;">数据加载失败，请刷新重试</p>`;
-    }
+      }
     }
 
     // 窗口尺寸变化处理
