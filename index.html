@@ -91,6 +91,7 @@
       transition: all 0.2s;
       word-break: break-word;
       overflow: hidden;
+      white-space: normal; /* 允许自动换行 */
     }
 
     .description-text:active {
@@ -161,26 +162,15 @@
       }
     }
 
-    // 文字缩放函数
+    // 自动换行
     function autoShrinkText(element) {
       const container = element.parentElement;
-      let fontSize = 16;
-      element.style.fontSize = fontSize + 'px';
-      
-      while (element.scrollHeight > container.offsetHeight && fontSize > 5) {
-        fontSize -= 0.5;
-        element.style.fontSize = fontSize + 'px';
-      }
+      const initialHeight = container.offsetHeight;
+      container.style.height = 'auto'; // 允许高度自动调整
 
-      // 检查行数并调整字体大小
-      const lineHeight = parseInt(window.getComputedStyle(element).lineHeight, 10);
-      const maxLines = Math.floor(container.offsetHeight / lineHeight);
-      let currentLines = Math.ceil(element.scrollHeight / lineHeight);
-
-      while (currentLines > maxLines && fontSize > 5) {
-        fontSize -= 0.5;
-        element.style.fontSize = fontSize + 'px';
-        currentLines = Math.ceil(element.scrollHeight / lineHeight);
+      // 检查是否超出容器高度
+      if (element.scrollHeight > initialHeight) {
+        container.style.height = element.scrollHeight + 'px';
       }
     }
 
