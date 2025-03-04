@@ -166,14 +166,36 @@
         height: 250px;
       }
     }
+
+    .top-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .left-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .right-controls {
+      display: flex;
+      gap: 10px;
+    }
   </style>
 </head>
 <body>
   <h1>上传新图片 <a href="index.html">返回画廊</a></h1>
-  
-  <div class="config-box">
-    <input type="password" id="github-token" placeholder="请输入GitHub访问令牌">
-    <button class="upload-btn" onclick="saveToken()">保存令牌</button>
+
+  <div class="top-controls">
+    <div class="left-controls">
+      <input type="password" id="github-token" placeholder="请输入GitHub访问令牌">
+      <button class="upload-btn" onclick="saveToken()">保存令牌</button>
+    </div>
+    <div class="right-controls">
+      <button class="upload-btn" onclick="uploadAllFiles()">批量上传</button>
+    </div>
   </div>
 
   <div id="drop-zone">
@@ -182,11 +204,6 @@
   </div>
 
   <div id="preview-grid" class="grid"></div>
-
-  <!-- 添加批量上传按钮 -->
-  <div class="upload-control">
-    <button class="upload-btn" onclick="uploadAllFiles()">批量上传</button>
-  </div>
 
   <script>
     // 配置信息（与画廊页面一致）
