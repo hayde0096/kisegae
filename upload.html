@@ -183,6 +183,11 @@
 
   <div id="preview-grid" class="grid"></div>
 
+  <!-- 添加批量上传按钮 -->
+  <div class="upload-control">
+    <button class="upload-btn" onclick="uploadAllFiles()">批量上传</button>
+  </div>
+
   <script>
     // 配置信息（与画廊页面一致）
     const CONFIG = {
@@ -276,8 +281,7 @@
           </div>
           <div class="description-editor">
             <textarea class="description-textarea" 
-              placeholder="请输入图片说明..."
-              maxlength="200"></textarea>
+              placeholder="请输入图片说明..."></textarea>
           </div>
           <div class="upload-control">
             <span class="file-name">${file.name}</span>
@@ -353,6 +357,17 @@
         button.style.background = '#dc3545';
         button.disabled = false;
         showToast(`上传失败: ${error.message}`, 'error');
+      }
+    }
+
+    // 批量上传文件
+    async function uploadAllFiles() {
+      const cards = document.querySelectorAll('.preview-card');
+      for (const card of cards) {
+        const uploadBtn = card.querySelector('.upload-btn');
+        if (!uploadBtn.disabled) {
+          await uploadFile(uploadBtn);
+        }
       }
     }
 
