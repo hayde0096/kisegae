@@ -294,7 +294,7 @@
           uploadBtn.disabled = textarea.value.trim() === '';
         });
 
-        document.getElementById('preview-grid').prepend(card);
+        document.getElementById('preview-grid').appendChild(card);
       };
       reader.readAsDataURL(file);
     }
