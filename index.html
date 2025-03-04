@@ -40,9 +40,8 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 30px;
-      max-width: calc(100% - 200px);
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: minmax(15px, auto);
       margin: 0 auto;
       padding: 0 100px;
     }
