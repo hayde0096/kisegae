@@ -13,15 +13,44 @@
     }
 
     h1 {
-      text-align: center;
-      margin: 20px 0 20px;
+      margin: 0;
       color: #2c3e50;
       font-size: 2em;
     }
 
-    .issues-notice {
+    .header {
+      position: relative;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center; /* 垂直居中对齐 */
+      width: 100%;
+      max-width: 800px; /* 根据需要调整最大宽度 */
+    }
+
+    .center-title {
       text-align: center;
-      margin: 20px 0 40px;
+      margin-bottom: 20px;
+    }
+
+    .top-left, .top-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .top-right {
+      align-items: flex-end;
+    }
+
+    .issues-notice {
+      margin: 10px 0 0;
       color: #666;
       font-size: 14px;
     }
@@ -100,43 +129,36 @@
       transform: scale(0.98);
     }
 
-    .top-right {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-    }
-
-    .top-left {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-    }
-
     .folder-select {
-      position: absolute;
-      top: 20px;
-      left: 20px;
       padding: 5px;
       font-size: 14px;
+      margin-top: 5px;
     }
 
   </style>
 </head>
 <body>
-  <p class="top-left">点击文字可以快速复制</p>
-  <h1>更衣人偶</h1>
-  
-  <p class="issues-notice top-right">
-    想要提交的衣服可以提交在
-    <a href="https://github.com/hayde0096/Kisegaeningyou/issues" 
-       class="issues-link"
-       target="_blank"
-       rel="noopener noreferrer">
-      Issues中
-    </a>
-  </p>
-
-  <select id="folder-select" class="folder-select"></select>
+  <div class="header">
+    <h1 class="center-title">更衣人偶</h1>
+    <div class="header-content">
+      <div class="top-left">
+        <label for="folder-select">选择画廊</label>
+        <select id="folder-select" class="folder-select"></select>
+      </div>
+      <div class="top-right">
+        <p>点击文字可以快速复制</p>
+        <p class="issues-notice">
+          想要提交的衣服可以提交在
+          <a href="https://github.com/hayde0096/Kisegaeningyou/issues" 
+             class="issues-link"
+             target="_blank"
+             rel="noopener noreferrer">
+            Issues中
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
 
   <div id="image-grid" class="grid"></div>
 
@@ -299,7 +321,7 @@
         const data = await response.json();
         const folders = data.tree.filter(item => item.type === 'tree');
         const folderSelect = document.getElementById('folder-select');
-        folderSelect.innerHTML = folders.map(folder => `<option value="${folder.path}">${folder.path}</option>`).join('');
+        folderSelect.innerHTML = folders.map((folder, index) => `<option value="${folder.path}">画廊 ${index + 1}</option>`).join('');
         updateImageFolder();
 
       } catch (error) {
