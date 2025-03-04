@@ -13,22 +13,45 @@
     }
 
     h1 {
-      text-align: center;
-      margin: 20px 0 40px;
+      margin: 0;
       color: #2c3e50;
     }
 
-    /* 配置区域 */
-    .config-box {
-      max-width: 600px;
-      margin: 20px auto;
+    .top-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .left-controls {
       display: flex;
       gap: 10px;
-      padding: 0 15px;
+      align-items: center;
+    }
+
+    .right-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .upload-btn {
+      padding: 8px 20px;
+      background: #2ea44f;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .upload-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
     }
 
     #github-token {
-      flex: 1;
       padding: 12px;
       border: 1px solid #ddd;
       border-radius: 8px;
@@ -116,21 +139,6 @@
       align-items: center;
     }
 
-    .upload-btn {
-      padding: 8px 20px;
-      background: #2ea44f;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .upload-btn:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-
     .file-name {
       font-size: 12px;
       color: #666;
@@ -166,34 +174,17 @@
         height: 250px;
       }
     }
-
-    .top-controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .left-controls {
-      display: flex;
-      gap: 10px;
-    }
-
-    .right-controls {
-      display: flex;
-      gap: 10px;
-    }
   </style>
 </head>
 <body>
-  <h1>上传新图片 <a href="index.html">返回画廊</a></h1>
-
   <div class="top-controls">
     <div class="left-controls">
-      <input type="password" id="github-token" placeholder="请输入GitHub访问令牌">
-      <button class="upload-btn" onclick="saveToken()">保存令牌</button>
+      <h1>上传新图片</h1>
+      <a href="index.html">返回画廊</a>
     </div>
     <div class="right-controls">
+      <input type="password" id="github-token" placeholder="请输入GitHub访问令牌">
+      <button class="upload-btn" onclick="saveToken()">保存令牌</button>
       <button class="upload-btn" onclick="uploadAllFiles()">批量上传</button>
     </div>
   </div>
