@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>更衣人偶</title>
   <style>
+    /* 保持原有样式不变 */
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #f8f9fa;
@@ -135,6 +136,11 @@
 
     // 增强版Base64解码函数
     function decodeBase64Content(base64Str) {
+      if (!base64Str) {
+        console.warn('Base64内容为空');
+        return '说明内容为空';
+      }
+      
       try {
         let safeBase64 = base64Str
           .replace(/-/g, '+')
@@ -146,8 +152,11 @@
         const decoded = atob(safeBase64);
         return decodeURIComponent(escape(decoded));
       } catch (error) {
-        console.error('解码失败:', error);
-        return '说明加载失败';
+        console.error('解码失败:', {
+          input: base64Str,
+          error: error.message
+        });
+        return '说明解析失败';
       }
     }
 
@@ -207,9 +216,10 @@
       return card;
     }
 
-    // 加载画廊数据
+    // 加载画廊数据（增强版）
     async function loadGallery() {
       try {
+        console.log('开始加载画廊数据...');
         const filesRes = await fetch(
           `https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}/contents/${CONFIG.IMAGE_FOLDER}`
         );
@@ -219,19 +229,53 @@
         }
 
         const allFiles = await filesRes.json();
-        const imageFiles = allFiles.filter(file => 
-          file.name.match(/\.(jpg|jpeg|png|gif)$/i) && 
-          !file.name.endsWith('.desc.txt')
-        );
+        console.log('GitHub API响应数据:', allFiles);
+
+        const imageFiles = allFiles.filter(file => {
+          const isImage = file.name.match(/\.(jpg|jpeg|png|gif)$/i);
+          const isDescFile = file.name.endsWith('.desc.txt');
+          console.log(`文件: ${file.name} | 图片: ${isImage} | 说明文件: ${isDescFile}`);
+          return isImage && !isDescFile;
+        });
+
+        console.log('过滤后的图片文件:', imageFiles);
 
         const grid = document.getElementById('image-grid');
-        imageFiles.forEach(file => {
-          const descFile = allFiles.find(f => f.name === `${file.name}.desc.txt`);
-          const description = descFile && descFile.content ? 
-            decodeBase64Content(descFile.content) : 
-            '暂无说明';
-          grid.appendChild(createImageCard(file.download_url, description));
-        });
+        grid.innerHTML = ''; // 清空现有内容
+
+        // 使用Promise.all处理异步加载
+        await Promise.all(imageFiles.map(async (file) => {
+          try {
+            const descFileName = `${file.name}.desc.txt`;
+            console.log(`处理图片: ${file.name}，查找说明文件: ${descFileName}`);
+
+            const descFile = allFiles.find(f => f.name === descFileName);
+            let description = '暂无说明';
+
+            if (descFile) {
+              console.log('找到说明文件:', descFile);
+              
+              // 处理大文件情况（GitHub API不返回content）
+              let content = descFile.content;
+              if (!content && descFile.size > 0) {
+                console.log('单独获取说明文件内容...');
+                const descRes = await fetch(descFile.download_url);
+                const textContent = await descRes.text();
+                content = btoa(unescape(encodeURIComponent(textContent)));
+              }
+
+              if (content) {
+                console.log('原始Base64内容:', content);
+                description = decodeBase64Content(content);
+                console.log('解码结果:', description);
+              }
+            }
+
+            grid.appendChild(createImageCard(file.download_url, description));
+          } catch (error) {
+            console.error(`处理文件 ${file.name} 时出错:`, error);
+          }
+        }));
 
       } catch (error) {
         console.error('加载失败:', error);
